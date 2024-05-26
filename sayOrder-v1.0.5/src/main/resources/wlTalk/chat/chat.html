@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css"
+          integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+    <!-- jQuery (Bootstrap 的所有 JavaScript 插件都依赖 jQuery，所以必须放在前边) -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"
+            integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ"
+            crossorigin="anonymous"></script>
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js"
+            integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.bootcss.com/spark-md5/3.0.0/spark-md5.min.js"></script>
+</head>
+<body>
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Chat</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                <li><a id="logout" href="#">退出登录</a></li>
+            </ul>
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+</nav>
+<div class="row">
+    <div class="col-lg-3">
+
+    </div><!-- /.col-lg-6 -->
+    <div class="col-lg-6">
+        <div class="input-group">
+            <input type="text" class="form-control" placeholder="请输入问题..." id="questionText" />
+            <span class="input-group-btn">
+        <button class="btn btn-default" type="button" id="submitQuestion">提问</button>
+      </span>
+        </div><!-- /input-group -->
+        <br />
+        <div class="input-group" style="width:100%;height:600px">
+            <span class="input-group-addon" id="sizing-addon1">chat:</span>
+            <div class="form-control" aria-describedby="sizing-addon1" style="height:600px" >
+                <div id="div1"><img src="/css/account.png" style="width: 20px;height: 20px;"/>&nbsp;你好</div>
+            </div>
+        </div>
+    </div><!-- /.col-lg-6 -->
+</div><!-- /.row -->
+</body>
+<script>
+    var historyList=new Array();
+    var minDiv=1;
+    var maxDiv=1;
+    $.ajaxSetup({
+        beforeSend: function(xhr) {
+            xhr.setRequestHeader('Content-type', 'application/json;charset=utf8');
+          //  if(localStorage.getItem('token'))
+           // xhr.setRequestHeader('token', localStorage.getItem('token'));
+        }
+    });
+    //请求后台
+    function talk(question){
+        var msgObj = {"sentence":question};
+        var dataJson = JSON.stringify(msgObj);
+        $.post("/ai/talk",dataJson,
+          function(result,status){
+            if(!result){
+                alert("失败，请联系管理员");
+                return;
+            }
+            var answer = "未获取到回复"
+            if(result.error == 0 && result.answer){
+                //获取answer
+                answer = result.answer;
+            }
+            show(answer,false)
+          },"json");
+    }
+
+    $("#submitQuestion").click(function(){
+        var questionText = $("#questionText").val();
+        $("#questionText").val("");
+        console.log("本次问题：" + questionText);
+        show(questionText,true);
+    })
+
+    function show(content,roleMe){
+        //先看是否需要裁剪
+        appenMsg(content)
+
+        var currentMaxDiv = maxDiv;
+        maxDiv++;
+        var eleId = "#div"+currentMaxDiv;
+        var nextEleId = "div"+maxDiv;
+        var appendDiv
+        if(roleMe){
+            appendDiv = '<div id="'+ nextEleId +'"><img src="/css/account.png" style="width: 20px;height: 20px;"/>&nbsp;' + content +'</div>';
+        }else{
+            appendDiv = '<div id="'+ nextEleId + '" style="text-align: right;">'+ content +'&nbsp;<img src="/css/robot.png" style="width: 20px;height: 20px;"/> </div>'
+        }
+        $(eleId).after(appendDiv);
+    }
+
+    function appenMsg(msg){
+       historyList[historyList.length] =
+            {
+                message:msg
+            };
+        historyList = subList(historyList);
+    }
+    function subList(sourceList){
+        if(sourceList.length > 10){
+            //  超过10个 要裁剪
+            var minDivId = "#div"+minDiv;
+            $(minDivId).remove();
+            minDiv++;
+            return sourceList.slice(sourceList.length - 10,sourceList.length);
+        }
+        return sourceList;
+    }
+    talk("你好")
+    $("#logout").click(function(){
+       window.location.href="/chat/finish.html"
+    })
+
+
+</script>
+</html>

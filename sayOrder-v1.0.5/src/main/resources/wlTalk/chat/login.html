@@ -1,0 +1,68 @@
+<html>
+<head>
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css"
+          integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+    <!-- jQuery (Bootstrap 的所有 JavaScript 插件都依赖 jQuery，所以必须放在前边) -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"
+            integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ"
+            crossorigin="anonymous"></script>
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js"
+            integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd"
+            crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="/css/signin.css"/>
+    <script src="https://cdn.bootcss.com/spark-md5/3.0.0/spark-md5.min.js"></script>
+</head>
+<body>
+<div class="container">
+
+    <form class="form-signin">
+        <h2 class="form-signin-heading">Please sign in</h2>
+        <label for="inputUserName" class="sr-only">User Name</label>
+        <input type="text" id="inputUserName" class="form-control" placeholder="Email address" required autofocus>
+        <label for="inputPassword" class="sr-only">Password</label>
+        <input type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+        <button class="btn btn-lg btn-primary btn-block" type="button" id="btnSubmit">Sign in</button>
+    </form>
+
+</div>
+</body>
+<script>
+
+    $.ajaxSetup({
+      beforeSend: function(xhr) {
+      xhr.setRequestHeader('Content-type', 'application/json;charset=utf8');
+      //if(localStorage.getItem('token'))
+      //  xhr.setRequestHeader('token', localStorage.getItem('token'));
+      }
+    });
+    $("#btnSubmit").click(function(){
+      var username = $("#inputUserName").val();
+      var password = $("#inputPassword").val();
+      var mdhPassword = password;
+      var dataObject = {
+        "username":username,
+        "password":mdhPassword
+      };
+      var dataJson = JSON.stringify(dataObject);
+      //请求后台
+      $.post("/api/chat/login",dataJson,
+          function(result,status){
+            if(!result){
+                alert("失败，请联系管理员");
+                return;
+            }
+            if(result.error == 0){
+                //成功了 取result.data即为token
+                //var token = result.data;
+                //localStorage.setItem('token',token);
+                //跳转到正确页面
+                location.href="/chat/chat.html"
+            }else{
+                alert("失败:" + result.errorMessage);
+            }
+          },"json");
+    });
+</script>
+</html>
