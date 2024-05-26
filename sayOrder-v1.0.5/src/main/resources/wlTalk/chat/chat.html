@@ -53,7 +53,7 @@
         <div class="input-group" style="width:100%;height:600px">
             <span class="input-group-addon" id="sizing-addon1">chat:</span>
             <div class="form-control" aria-describedby="sizing-addon1" style="height:600px" >
-                <div id="div1"><img src="/css/account.png" style="width: 20px;height: 20px;"/>&nbsp;你好</div>
+                <div id="div1"><img src="/css/account.png" style="width: 20px;height: 20px;"/>&nbsp;你好</div><br />
             </div>
         </div>
     </div><!-- /.col-lg-6 -->
@@ -93,7 +93,8 @@
         var questionText = $("#questionText").val();
         $("#questionText").val("");
         console.log("本次问题：" + questionText);
-        show(questionText,true);
+        show(questionText,true)
+        talk(questionText);
     })
 
     function show(content,roleMe){
@@ -106,9 +107,9 @@
         var nextEleId = "div"+maxDiv;
         var appendDiv
         if(roleMe){
-            appendDiv = '<div id="'+ nextEleId +'"><img src="/css/account.png" style="width: 20px;height: 20px;"/>&nbsp;' + content +'</div>';
+            appendDiv = '<div id="'+ nextEleId +'"><img src="/css/account.png" style="width: 20px;height: 20px;"/>&nbsp;' + content +'</div> <br />';
         }else{
-            appendDiv = '<div id="'+ nextEleId + '" style="text-align: right;">'+ content +'&nbsp;<img src="/css/robot.png" style="width: 20px;height: 20px;"/> </div>'
+            appendDiv = '<div id="'+ nextEleId + '" style="text-align: right;">'+ content +'&nbsp;<img src="/css/robot.png" style="width: 20px;height: 20px;"/> </div><br />'
         }
         $(eleId).after(appendDiv);
     }
@@ -130,7 +131,7 @@
         }
         return sourceList;
     }
-    talk("你好")
+    talk("你好",true)
     $("#logout").click(function(){
        window.location.href="/chat/finish.html"
     })
