@@ -53,7 +53,7 @@
         <div class="input-group" style="width:100%;height:600px">
             <span class="input-group-addon" id="sizing-addon1">chat:</span>
             <div class="form-control" aria-describedby="sizing-addon1" style="height:600px" >
-                <div id="div1"><img src="/css/account.png" style="width: 20px;height: 20px;"/>&nbsp;你好</div><br />
+                <div id="div0" style="display: none;"></div>
             </div>
         </div>
     </div><!-- /.col-lg-6 -->
@@ -61,8 +61,8 @@
 </body>
 <script>
     var historyList=new Array();
-    var minDiv=1;
-    var maxDiv=1;
+    var minDiv=0;
+    var maxDiv=0;
     $.ajaxSetup({
         beforeSend: function(xhr) {
             xhr.setRequestHeader('Content-type', 'application/json;charset=utf8');
@@ -80,10 +80,29 @@
                 alert("失败，请联系管理员");
                 return;
             }
-            var answer = "未获取到回复"
-            if(result.error == 0 && result.answer){
+            var answer = ""
+            if(result.error == 0){
                 //获取answer
-                answer = result.answer;
+                if(result.shop && result.shop.answer){
+                    answer = result.shop.answer;
+                }
+                else if(result.shop && result.shop.orders){
+                    answer = "已明确操作："
+                    for(var k = 0;k < result.shop.orders.length;k++){
+                        answer = answer +  "识别" + (k + 1) + "->"
+                        for(var i = 0;i < result.shop.orders[k].keyWords.length;i++){
+                        answer += result.shop.orders[k].keyWords[i]
+                        if(i + 1 < result.shop.orders[k].keyWords.length ){
+                            answer += ","
+                        }
+                    }
+                    answer += "&nbsp;&nbsp;"
+                    }
+
+                }
+            }
+            if(!answer){
+                answer = "无法理解，可能需要先进行训练"
             }
             show(answer,false)
           },"json");
@@ -131,7 +150,6 @@
         }
         return sourceList;
     }
-    talk("你好",true)
     $("#logout").click(function(){
        window.location.href="/chat/finish.html"
     })
